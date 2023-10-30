@@ -2,9 +2,15 @@ const express = require('express');
 const { default: mongoose } = require('mongoose');
 const app = express();
 const port = 3000;
+app.use(express.urlencoded({extended:true}))
+const Mydata = require('./models/mydataSchema')
 
 app.get('/', (req ,res)=>{
     res.sendFile('./views/home.html',{root:__dirname}); // path must be absolute or specify root to res.sendFile
+})
+
+app.get('/index.html', (req ,res)=>{
+    res.send('<h1>sending request seccesfully</h1> '); 
 })
 
 
@@ -17,3 +23,20 @@ mongoose
     })
 })
 .catch((err)=>{console.log(err)});
+
+app.post('/',(req ,res)=>{
+    console.log(req.body);
+
+    const mydata = new Mydata(req.body);
+
+    mydata
+    .save()
+    .then(()=>{
+        res.redirect('/index.html')
+
+    }).catch((err)=>{
+        console.log(err);
+    });
+
+})
+
