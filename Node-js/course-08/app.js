@@ -5,6 +5,11 @@ const port = 3000;
 app.use(express.urlencoded({extended:true}))
 const Mydata = require('./models/mydataSchema')
 app.set('view engine','ejs');
+app.use(express.static('public'))
+
+
+
+
 
 app.get('/', (req ,res)=>{
    /* res.sendFile('./views/home.html',{root:__dirname}); */ // path must be absolute or specify root to res.sendFile
