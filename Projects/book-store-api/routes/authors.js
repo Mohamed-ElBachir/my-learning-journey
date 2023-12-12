@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
+const { Author } = require('../models/Author');
 
 const authors = [
     {
@@ -19,38 +20,53 @@ const authors = [
 *   @access public
 
 */
-router.get("/",(req ,res)=>{
-    res.status(200).json(authors);
+router.get("/",async (req ,res)=>{
+    try {
+        const authorList = await Author.find()
+        res.status(200).json(authorList);
+    } catch (error) {
+        res.status(500).json({message : "Something went wrong"})
+    }
 })
 
-router.get("/:id",(req ,res)=>{
-    const author = authors.find(b=> b.id === parseInt(req.params.id));
+router.get("/:id",async(req ,res)=>{
+    try {
+        const author = await Author.findById(req.params.id);
     if (author) {
         res.status(200).json(author)
     }else{
         res.status(404).json({message:"Author not found"});
     }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message : "Somthing went wrong"})
+    }
+    
 });
 
 
-router.post("/" ,(req , res)=>{
+router.post("/" ,async(req , res)=>{
 
     const {error} = validateCreateAuthor(req.body)
     if (error) {
         return res.status(400).json({message : error.details[0].message})
     }
-
-    const author = {
-        id: authors.length + 1,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        nationality:req.body.nationality,
-        image: req.body.image,
-        
-    };
-
-    authors.push(author);
-    res.status(201).json(author) // 201 => created successfully
+    try {
+        const author = new Author({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            nationality:req.body.nationality,
+            image: req.body.image,
+            
+        });
+        const result =  await author.save();
+    
+        res.status(201).json(result)
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Something went wrong"})
+    }
+     
 })
 
 
